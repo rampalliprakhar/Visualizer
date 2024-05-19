@@ -1,0 +1,94 @@
+:root{
+    --bgColor : rgb(236, 235, 245);
+    --bgColorLight : hsla(242, 86%, 24%, 1);
+    --textColor : hsla(242, 86%, 88%, 1);
+    --textColorDark : rgb(79, 19, 19);
+    --paperColor: rgb(235, 235, 235);
+    --paperColorDark: rgb(148, 147, 173);
+    --shadowColorFaint: hsla(0, 0%, 0%, 0.2);
+}
+
+::selected{
+    color: var(--textColorDark);
+}
+
+html, body{
+    background: var(--bgColor);
+    background: linear-gradient(135deg, var(--bgColor), var(--bgColorLight));
+    color: var(--textColor);   
+    font-family: 'Saira', sans-serif;   
+    height: 100vh;   
+    margin: 0;
+    overflow: hidden;
+    padding: 0;
+    position: relative;
+    width: 100vw;
+}
+
+*{
+    box-sizing: border-box;
+    transition: all 0.12s cubic-bezier(0.42, 0.54, 0.22, 1.26);
+}
+
+#canvas {
+    height: 100%;
+    left: 0;
+    position: fixed;
+    top: 0;
+    width: 100%;
+}
+
+audio {
+    bottom: -10px;
+    left: 10px;
+    position: fixed;
+    width: calc(100% - 20px);
+}
+
+audio.active{
+    bottom: 10px;
+}
+
+#mainFile{
+    height: 0.1px;
+    opacity: 0;
+    overflow: hidden;
+    position: absolute;
+    width: 0.1px;
+    z-index: 5;
+}
+
+label.file{
+    background: var(--paperColor);
+    border-radius: 4px;
+    box-shadow: 0 20px 60px var(--shadowColorFaint);
+    color: var(--textColor);
+    cursor: pointer;
+    display: inline-block;
+    font-size: 1.25em;
+    font-weight: 700;
+    left: 30%;
+    padding: 5rem 2rem;
+    position: absolute;
+    top: 20%;
+    transform: translate3d(-50%, -50%, 0);
+}
+
+
+label.file:hover{
+    background: var(--paperColorDark);
+    transform: translate3d(-50%, -55%, 0);
+}
+
+label.file.working{
+    background: var(--paperColorDark);
+    transform: translate3d(-50%, -45%, 0);
+}
+
+label.file.fixed{
+    font-size: 1rem;
+    left: 0;
+    padding: 0.2rem 2rem;
+    top: 0; 
+    transform: translate3d(10%, 50%, 0);
+}
