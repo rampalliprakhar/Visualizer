@@ -1,23 +1,26 @@
-:root{
-    --bgColor : rgb(236, 235, 245);
-    --bgColorLight : hsla(242, 86%, 24%, 1);
-    --textColor : hsla(242, 86%, 88%, 1);
-    --textColorDark : rgb(79, 19, 19);
+:root {
+    --bgColor: rgb(236, 235, 245);
+    --bgColorLight: hsla(242, 86%, 24%, 1);
+    --textColor: hsla(242, 86%, 88%, 1);
+    --textColorDark: rgb(79, 19, 19);
     --paperColor: rgb(235, 235, 235);
     --paperColorDark: rgb(148, 147, 173);
     --shadowColorFaint: hsla(0, 0%, 0%, 0.2);
+    --buttonColor: #4a90e2; /* Button color */
+    --buttonHoverColor: #357ab8; /* Button hover color */
+    --sliderColor: #4a90e2; /* Slider color */
 }
 
-::selected{
+::selection {
     color: var(--textColorDark);
 }
 
-html, body{
+html, body {
     background: var(--bgColor);
     background: linear-gradient(135deg, var(--bgColor), var(--bgColorLight));
-    color: var(--textColor);   
-    font-family: 'Saira', sans-serif;   
-    height: 100vh;   
+    color: var(--textColor);
+    font-family: 'Saira', sans-serif;
+    height: 100vh;
     margin: 0;
     overflow: hidden;
     padding: 0;
@@ -25,7 +28,7 @@ html, body{
     width: 100vw;
 }
 
-*{
+* {
     box-sizing: border-box;
     transition: all 0.12s cubic-bezier(0.42, 0.54, 0.22, 1.26);
 }
@@ -45,11 +48,11 @@ audio {
     width: calc(100% - 20px);
 }
 
-audio.active{
+audio.active {
     bottom: 10px;
 }
 
-#mainFile{
+#mainFile {
     height: 0.1px;
     opacity: 0;
     overflow: hidden;
@@ -58,7 +61,7 @@ audio.active{
     z-index: 5;
 }
 
-label.file{
+label.file {
     background: var(--paperColor);
     border-radius: 4px;
     box-shadow: 0 20px 60px var(--shadowColorFaint);
@@ -74,21 +77,82 @@ label.file{
     transform: translate3d(-50%, -50%, 0);
 }
 
-
-label.file:hover{
+label.file:hover {
     background: var(--paperColorDark);
     transform: translate3d(-50%, -55%, 0);
 }
 
-label.file.working{
+label.file.working {
     background: var(--paperColorDark);
     transform: translate3d(-50%, -45%, 0);
 }
 
-label.file.fixed{
+label.file.fixed {
     font-size: 1rem;
     left: 0;
     padding: 0.2rem 2rem;
-    top: 0; 
+    top: 0;
     transform: translate3d(10%, 50%, 0);
+}
+
+button, input[type="range"] {
+    position: fixed; /* Ensure buttons are fixed in position */
+    z-index: 10; /* Ensure buttons are above other elements */
+    margin: 10px; /* Add some margin for spacing */
+    border: none; /* Remove default border */
+    border-radius: 5px; /* Rounded corners */
+    padding: 10px 15px; /* Padding for buttons */
+    font-size: 1em; /* Font size */
+    color: white; /* Text color */
+    background-color: var(--buttonColor); /* Button color */
+    cursor: pointer; /* Pointer cursor on hover */
+    transition: background-color 0.3s; /* Smooth transition */
+}
+
+button:hover {
+    background-color: var(--buttonHoverColor); /* Change color on hover */
+}
+
+input[type="range"] {
+    -webkit-appearance: none; /* Remove default styling */
+    appearance: none; /* Standard property for compatibility */
+    width: 200px; /* Width of the slider */
+    height: 5px; /* Height of the slider */
+    height: 5px; /* Height of the slider */
+    background: #ddd; /* Background color */
+    border-radius: 5px; /* Rounded corners */
+    outline: none; /* Remove outline */
+}
+
+input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none; /* Remove default styling */
+    appearance: none; /* Remove default styling */
+    width: 15px; /* Width of the thumb */
+    height: 15px; /* Height of the thumb */
+    border-radius: 50%; /* Round thumb */
+    background: var(--sliderColor); /* Thumb color */
+    cursor: pointer; /* Pointer cursor on hover */
+}
+
+input[type="range"]::-moz-range-thumb {
+    width: 15px; /* Width of the thumb */
+    height: 15px; /* Height of the thumb */
+    border-radius: 50%; /* Round thumb */
+    background: var(--sliderColor); /* Thumb color */
+    cursor: pointer; /* Pointer cursor on hover */
+}
+
+#playPauseButton {
+    bottom: 50px; /* Position above the audio element */
+    left: 10px; /* Adjust as needed */
+}
+
+#volumeControl {
+    bottom: 50px; /* Position above the audio element */
+    left: 150px; /* Adjust as needed */
+}
+
+#progressBar {
+    bottom: 50px; /* Position above the audio element */
+    left: 300px; /* Adjust as needed */
 }

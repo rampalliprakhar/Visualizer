@@ -1,5 +1,6 @@
 # Visualizer
 A webpage that visualizes music. It is made using Three JS, WebAudioAPI, and SimplexNoise. We can seek the audio at any time; the shape changes while music is played and returns to normal when it is paused or stopped. The file accepts all audio files.
+The moving objects are based on the combination of particles, sphere, and cubes from Three.js
 
 # Installation
 Clone the repository with
