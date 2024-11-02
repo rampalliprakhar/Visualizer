@@ -16,5 +16,5 @@ cd Visualizer
 # Run it 
 Press the "Go Live" button at the bottom right of the VS Code window to see the application.
 
-![image](https://github.com/rampalliprakhar/Visualizer/assets/114451266/98ff83cc-26cd-47d6-ad9d-aad714fad5c1)
-![image](https://github.com/rampalliprakhar/Visualizer/assets/114451266/4581b396-0f5c-4e29-951f-007519c1b8db)
+![alt text](Visualize_Start.jpg)
+![alt text](Visualize_Play.jpg)

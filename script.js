@@ -25,6 +25,7 @@ var mainVisual = function() {
         lightIntensity: 1,
         rotationSpeed: 0.01,
         dispersalSpeed: 5,
+        wireframe: false, // Add this line
         reset: resetParameters
     };
 
@@ -129,6 +130,9 @@ var mainVisual = function() {
         gui.add(params, 'lightIntensity', 0, 5).name('Light Intensity').onChange(updateLightIntensity);
         gui.add(params, 'rotationSpeed', 0, 0.1).name('Sphere Rotation Speed');
         gui.add(params, 'dispersalSpeed', 0, 20).name('Dispersal Speed');
+        gui.add(params, 'wireframe').name('Wireframe').onChange(function(e) {
+            object.material.wireframe = e; // Update the wireframe state
+        });
         gui.add(params, 'reset').name('Reset');
     }
 
@@ -216,7 +220,7 @@ var mainVisual = function() {
                 positions[i * 3 + 1] += (Math.random() - 0.5) * params.dispersalSpeed;
                 positions[i * 3 + 2] += (Math.random() - 0.5) * params.dispersalSpeed;
             }
-        } else{
+        } else {
             for (let i = 0; i < positions.length / 3; i++) {
                 positions[i * 3] = object.geometry.attributes.position.array[i * 3];
                 positions[i * 3 + 1] = object.geometry.attributes.position.array[i * 3 + 1];
@@ -227,7 +231,6 @@ var mainVisual = function() {
 
     // Update Sphere
     function updateSphere(isLoud) {
-        //const positions = particleSystem.geometry.attributes.position.array;
         const sphereInfluence = dataArray[0] / 255;
         object.position.y = Math.sin(Date.now() * 0.001) * sphereInfluence * 10;
         const scaleInfluence = params.sphereScale + (sphereInfluence * 2);
