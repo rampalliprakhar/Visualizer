@@ -40,7 +40,8 @@ var mainVisual = function() {
 
     // Audio Context Setup
     function setupAudio() {
-        context = new AudioContext();
+        context = new (window.AudioContext || window.webkitAudioContext)();
+        unlockAudioContext(context);
         const src = context.createMediaElementSource(audio);
         analyser = context.createAnalyser();
         src.connect(analyser);
@@ -48,6 +49,15 @@ var mainVisual = function() {
         analyser.fftSize = 512;
         const bufferLength = analyser.frequencyBinCount;
         dataArray = new Uint8Array(bufferLength);
+    }
+
+    function unlockAudioContext(audioCtx) {
+        if (audioCtx.state !== 'suspended') return;
+        const b = document.body;
+        const events = ['touchstart','touchend', 'mousedown','keydown'];
+        events.forEach(e => b.addEventListener(e, unlock, false));
+        function unlock() { audioCtx.resume().then(clean); }
+        function clean() { events.forEach(e => b.removeEventListener(e, unlock)); }
     }
 
     // Three.js Scene Setup
