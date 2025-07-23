@@ -1,23 +1,58 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Visualizer</title>
-    <link rel="stylesheet" href="src/style.css"/>
-</head>
-<body>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Advanced Audio Visualizer</title>
+    <link rel="stylesheet" href="src/style.css" />
+  </head>
+  <body>
     <div id="main">
-        <label for="mainFile" class="file">Choose the audio file
-            <input type="file" id="mainFile" accept="audio/*">
-        </label>
-        <audio id="audio" controls></audio>
+      <label for="mainFile" class="file">
+        Choose the audio file
+        <input type="file" id="mainFile" accept="audio/*" />
+      </label>
+      <audio id="audio" controls></audio>
     </div>
+
+    <!-- Frequency Bands Display -->
+    <div id="frequency-bands">
+      <div class="frequency-band">
+        <label>Bass</label>
+        <div class="frequency-bar">
+          <div class="bass-fill frequency-fill"></div>
+        </div>
+      </div>
+      <div class="frequency-band">
+        <label>Mid</label>
+        <div class="frequency-bar">
+          <div class="mid-fill frequency-fill"></div>
+        </div>
+      </div>
+      <div class="frequency-band">
+        <label>Treble</label>
+        <div class="frequency-bar">
+          <div class="treble-fill frequency-fill"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Beat Indicator -->
+    <div id="beatIndicator" class="beat-indicator"></div>
+
+    <!-- Visualization Container -->
     <div id="execute"></div>
-    
+
+    <!-- Loading Indicator -->
+    <div id="loading" class="loading">
+      <div class="loading-spinner"></div>
+      <p>Loading Visualizer...</p>
+    </div>
+
+    <!-- Scripts -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/dat-gui/0.6.3/dat.gui.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/simplex-noise/2.4.0/simplex-noise.min.js"></script>
     <script type="module" src="src/main.js"></script>
-</body>
+  </body>
 </html>

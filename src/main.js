@@ -1,269 +1,191 @@
-// Initialize Simplex Noise function
-let noise = new SimplexNoise();
+import { AudioManager } from "./modules/AudioManager.js";
+import { SceneManager } from "./modules/SceneManager.js";
+import { VisualizationManager } from "./modules/VisualizationManager.js";
+import { UIManager } from "./modules/UIManager.js";
+import { ThemeManager } from "./modules/ThemeManager.js";
+import { EffectsManager } from "./modules/EffectsManager.js";
 
-// Main Function for Visualizer
-var mainVisual = function() {
-    // DOM Elements
-    const file = document.getElementById("mainFile");
+class AdvancedVisualizer {
+  constructor() {
+    this.audioManager = null;
+    this.sceneManager = null;
+    this.visualizationManager = null;
+    this.uiManager = null;
+    this.themeManager = null;
+    this.effectsManager = null;
+
+    this.isInitialized = false;
+    this.animationId = null;
+  }
+
+  async init() {
+    try {
+      console.log("Starting visualizer initialization...");
+
+      // Initialize core managers
+      this.audioManager = new AudioManager();
+      this.sceneManager = new SceneManager();
+      this.themeManager = new ThemeManager();
+      this.effectsManager = new EffectsManager();
+
+      console.log("Managers created, initializing...");
+
+      // Initialize managers that do not depend on others
+      await this.audioManager.init();
+      console.log("Audio manager initialized");
+
+      this.sceneManager.init();
+      console.log("Scene manager initialized");
+
+      this.themeManager.init();
+      console.log("Theme manager initialized");
+
+      // Initialize managers that depend on others
+      this.visualizationManager = new VisualizationManager(
+        this.sceneManager,
+        this.audioManager,
+        this.effectsManager
+      );
+      this.visualizationManager.init();
+      console.log("Visualization manager initialized");
+
+      this.effectsManager.init(this.sceneManager.getScene());
+      console.log("Effects manager initialized");
+
+      this.uiManager = new UIManager(
+        this.audioManager,
+        this.visualizationManager,
+        this.themeManager,
+        this.effectsManager
+      );
+      this.uiManager.init();
+      console.log("UI manager initialized");
+
+      // Setup event listeners
+      this.setupEventListeners();
+
+      this.isInitialized = true;
+      this.startAnimation();
+
+      // Hide loading screen
+      this.hideLoading();
+
+      console.log("Advanced Visualizer initialized successfully");
+    } catch (error) {
+      console.error("Failed to initialize visualizer:", error);
+      this.hideLoading();
+      this.showError(error.message);
+    }
+  }
+
+  setupEventListeners() {
+    // Window resize
+    window.addEventListener("resize", () => {
+      if (this.sceneManager) {
+        this.sceneManager.handleResize();
+      }
+    });
+
+    // File input - only set up once
+    const fileInput = document.getElementById("mainFile");
+    if (fileInput) {
+      fileInput.addEventListener("change", (event) => {
+        this.handleFileChange(event);
+      });
+    }
+
+    // Audio element events
     const audio = document.getElementById("audio");
-    const fileName = document.querySelector("label.file");
+    if (audio) {
+      audio.addEventListener("play", () => {
+        if (this.audioManager) {
+          this.audioManager.resume();
+        }
+      });
 
-    // Audio Context and Analyser
-    let context, analyser, dataArray;
+      audio.addEventListener("pause", () => {
+        if (this.audioManager) {
+          this.audioManager.suspend();
+        }
+      });
+    }
+  }
 
-    // Three.js Scene
-    let scene, camera, renderer, object, particleSystem, particleMaterial;
-    let ambientLight, spotLight; // Declare ambientLight and spotLight here
+  handleFileChange(event) {
+    if (this.audioManager) {
+      this.audioManager.handleFileChange(event);
+    }
+  }
 
-    // GUI Parameters
-    const params = {
-        sphereScale: 1,
-        loudnessThreshold: 200,
-        particleSize: 1,
-        backgroundColor: '#ffffff',
-        particleColor: '#ff0000',
-        lightIntensity: 1,
-        rotationSpeed: 0.01,
-        dispersalSpeed: 5,
-        wireframe: false, // Add this line
-        reset: resetParameters
+  startAnimation() {
+    if (!this.isInitialized) return;
+
+    const animate = () => {
+      this.animationId = requestAnimationFrame(animate);
+
+      try {
+        // Update all systems
+        if (this.audioManager) this.audioManager.update();
+        if (this.effectsManager) this.effectsManager.update();
+        if (this.visualizationManager) this.visualizationManager.update();
+        if (this.uiManager) this.uiManager.update();
+
+        // Render scene
+        if (this.sceneManager) this.sceneManager.render();
+      } catch (error) {
+        console.error("Animation loop error:", error);
+      }
     };
 
-    // Initialize the visualizer
-    function init() {
-        setupAudio();
-        setupScene();
-        setupGUI();
-        file.onchange = fileChangeHandler;
-        animate();
+    animate();
+  }
+
+  hideLoading() {
+    const loading = document.getElementById("loading");
+    if (loading) {
+      loading.style.display = "none";
     }
+  }
 
-    // Audio Context Setup
-    function setupAudio() {
-        context = new (window.AudioContext || window.webkitAudioContext)();
-        unlockAudioContext(context);
-        const src = context.createMediaElementSource(audio);
-        analyser = context.createAnalyser();
-        src.connect(analyser);
-        analyser.connect(context.destination);
-        analyser.fftSize = 512;
-        const bufferLength = analyser.frequencyBinCount;
-        dataArray = new Uint8Array(bufferLength);
+  showError(message) {
+    const loading = document.getElementById("loading");
+    if (loading) {
+      loading.innerHTML = `
+                <div style="color: red; text-align: center;">
+                    <h2>Error</h2>
+                    <p>${message}</p>
+                    <button onclick="location.reload()" style="padding: 10px 20px; margin-top: 10px;">Reload</button>
+                </div>
+            `;
     }
+  }
 
-    function unlockAudioContext(audioCtx) {
-        if (audioCtx.state !== 'suspended') return;
-        const b = document.body;
-        const events = ['touchstart','touchend', 'mousedown','keydown'];
-        events.forEach(e => b.addEventListener(e, unlock, false));
-        function unlock() { audioCtx.resume().then(clean); }
-        function clean() { events.forEach(e => b.removeEventListener(e, unlock)); }
+  stop() {
+    if (this.animationId) {
+      cancelAnimationFrame(this.animationId);
+      this.animationId = null;
     }
+  }
 
-    // Three.js Scene Setup
-    function setupScene() {
-        // camera
-        scene = new THREE.Scene();
-        camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
-        camera.position.set(0, 0, 150);
-        scene.add(camera);
+  destroy() {
+    this.stop();
 
-        // renderer
-        renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
-        renderer.setSize(window.innerWidth, window.innerHeight);
-        document.getElementById('execute').appendChild(renderer.domElement);
-
-        // call functions
-        createSphere();
-        createParticles();
-        createLighting();
-    }
-
-    // Create Sphere
-    function createSphere() {
-        const geometry = new THREE.IcosahedronGeometry(10, 3);
-        const material = new THREE.MeshLambertMaterial({ color: 0xF3F3F3 });
-        object = new THREE.Mesh(geometry, material);
-        scene.add(object);
-    }
-
-    // Create Particle System
-    function createParticles() {
-        const particleCount = 1000;
-        const particles = new THREE.BufferGeometry();
-        const positions = new Float32Array(particleCount * 3);
-        const colors = new Float32Array(particleCount * 3);
-
-        for (let i = 0; i < particleCount; i++) {
-            // Position particles around the sphere
-            const radius = 10; // Same as sphere radius
-            const theta = Math.random() * Math.PI * 2; // Random angle
-            const phi = Math.acos(Math.random() * 2 - 1); // Random angle for spherical coordinates
-            const x = radius * Math.sin(phi) * Math.cos(theta);
-            const y = radius * Math.sin(phi) * Math.sin(theta);
-            const z = radius * Math.cos(phi);
-            positions.set([x, y, z], i * 3);
-            colors.set([Math.random(), Math.random(), Math.random()], i * 3);
-        }
-
-        particles.setAttribute('position', new THREE.BufferAttribute(positions, 3));
-        particles.setAttribute('color', new THREE.BufferAttribute(colors, 3));
-
-        particleMaterial = new THREE.PointsMaterial({
-            size: params.particleSize,
-            vertexColors: true,
-            transparent: true,
-            opacity: 0.7,
-        });
-
-        particleSystem = new THREE.Points(particles, particleMaterial);
-        scene.add(particleSystem);
-    }
-
-    // Create Lighting
-    function createLighting() {
-        ambientLight = new THREE.AmbientLight(0xaaaaaa, 1); // Initialize ambientLight
-        scene.add(ambientLight);
-        spotLight = new THREE.SpotLight(0xffffff); // Initialize spotLight
-        spotLight.position.set(-10, 40, 20);
-        scene.add(spotLight);
-    }
-
-    // GUI Setup
-    function setupGUI() {
-        const gui = new dat.GUI();
-        gui.add(params, 'sphereScale', 0.1, 5).name('Sphere Scale').onChange(updateSphereScale);
-        gui.add(params, 'loudnessThreshold', 0, 255).name('Loudness Threshold');
-        gui.add(params, 'particleSize', 0.1, 5).name('Particle Size').onChange(updateParticleSize);
-        gui.addColor(params, 'backgroundColor').name('Background Color').onChange(updateBackgroundColor);
-        gui.addColor(params, 'particleColor').name('Particle Color').onChange(updateParticleColor);
-        gui.add(params, 'lightIntensity', 0, 5).name('Light Intensity').onChange(updateLightIntensity);
-        gui.add(params, 'rotationSpeed', 0, 0.1).name('Sphere Rotation Speed');
-        gui.add(params, 'dispersalSpeed', 0, 20).name('Dispersal Speed');
-        gui.add(params, 'wireframe').name('Wireframe').onChange(function(e) {
-            object.material.wireframe = e; // Update the wireframe state
-        });
-        gui.add(params, 'reset').name('Reset');
-    }
-
-    // Handle File Change
-    function fileChangeHandler() {
-        const files = this.files;
-        if (files.length > 0) {
-            audio.src = URL.createObjectURL(files[0]);
-            audio.load();
-            audio.play();
-        }
-    }
-
-    // Reset Parameters
-    function resetParameters() {
-        this.sphereScale = 1;
-        this.loudnessThreshold = 200;
-        this.particleSize = 1;
-        this.backgroundColor = '#ffffff';
-        this.particleColor = '#ff0000';
-        this.lightIntensity = 1;
-        this.rotationSpeed = 0.01;
-        this.dispersalSpeed = 5;
-        updateSphereScale();
-        updateParticleSize();
-        updateBackgroundColor();
-        updateLightIntensity();
-    }
-
-    // Update Sphere Scale
-    function updateSphereScale() {
-        object.scale.set(params.sphereScale, params.sphereScale, params.sphereScale);
-    }
-
-    // Update Particle Size
-    function updateParticleSize() {
-        particleMaterial.size = params.particleSize;
-    }
-
-    // Update Background Color
-    function updateBackgroundColor() {
-        scene.background = new THREE.Color(params.backgroundColor);
-    }
-
-    // Update Particle Color
-    function updateParticleColor() {
-        particleMaterial.color = new THREE.Color(params.particleColor);
-    }
-
-    // Update Light Intensity
-    function updateLightIntensity() {
-        ambientLight.intensity = params.lightIntensity;
-        spotLight.intensity = params.lightIntensity;
-    }
-
-    // Animation Loop
-    function animate() {
-        analyser.getByteFrequencyData(dataArray);
-        const isLoud = dataArray.some(value => value > params.loudnessThreshold);
-        updateParticles(isLoud);
-        updateSphere(isLoud);
-        renderer.render(scene, camera);
-        requestAnimationFrame(animate);
-    }
-
-    // Update Particles
-    function updateParticles(isLoud) {
-        const positions = particleSystem.geometry.attributes.position.array;
-        for (let i = 0; i < positions.length / 3; i++) {
-            const audioInfluence = dataArray[i % dataArray.length] / 255;
-            positions[i * 3 + 1] += (Math.random() - 0.5) * audioInfluence;
-            positions[i * 3] += (Math.random() - 0.5) * audioInfluence;
-        }
-
-        const sizes = new Float32Array(positions.length / 3);
-        for (let i = 0; i < sizes.length; i++) {
-            sizes[i] = params.particleSize + (dataArray[i % dataArray.length] / 255) * 5;
-        }
-        particleSystem.geometry.setAttribute('size', new THREE.BufferAttribute(sizes, 1));
-        particleSystem.geometry.attributes.position.needsUpdate = true;
-
-        if (isLoud) {
-            for (let i = 0; i < positions.length / 3; i++) {
-                positions[i * 3] += (Math.random() - 0.5) * params.dispersalSpeed;
-                positions[i * 3 + 1] += (Math.random() - 0.5) * params.dispersalSpeed;
-                positions[i * 3 + 2] += (Math.random() - 0.5) * params.dispersalSpeed;
-            }
-        } else {
-            for (let i = 0; i < positions.length / 3; i++) {
-                positions[i * 3] = object.geometry.attributes.position.array[i * 3];
-                positions[i * 3 + 1] = object.geometry.attributes.position.array[i * 3 + 1];
-                positions[i * 3 + 2] = object.geometry.attributes.position.array[i * 3 + 2];
-            }
-        }
-    }
-
-    // Update Sphere
-    function updateSphere(isLoud) {
-        const sphereInfluence = dataArray[0] / 255;
-        object.position.y = Math.sin(Date.now() * 0.001) * sphereInfluence * 10;
-        const scaleInfluence = params.sphereScale + (sphereInfluence * 2);
-        object.scale.set(scaleInfluence, scaleInfluence, scaleInfluence);
-        const colorInfluence = new THREE.Color(dataArray[0] / 255, dataArray[1] / 255, dataArray[2] / 255);
-        object.material.color = colorInfluence;
-        object.rotation.x += params.rotationSpeed;
-        object.rotation.y += params.rotationSpeed;
-        updateParticles(isLoud);
-    }
-
-    // Start the visualizer
-    init();
+    // Cleanup all managers
+    if (this.audioManager) this.audioManager.destroy();
+    if (this.sceneManager) this.sceneManager.destroy();
+    if (this.visualizationManager) this.visualizationManager.destroy();
+    if (this.uiManager) this.uiManager.destroy();
+    if (this.themeManager) this.themeManager.destroy();
+    if (this.effectsManager) this.effectsManager.destroy();
+  }
 }
 
-// Load the main function
-window.onload = mainVisual();
+// Initialize when page loads
+window.addEventListener("load", async () => {
+  console.log("Page loaded, initializing visualizer...");
+  const visualizer = new AdvancedVisualizer();
+  await visualizer.init();
 
-// Main Utility Functions
-const average = (arr) => arr.reduce((sum, b) => sum + b) / arr.length;
-const maximum = (arr) => arr.reduce((a, b) => Math.max(a, b));
-const fractional = (val, minVal, maxVal) => (val - minVal) / (maxVal - minVal);
-const modulation = (val, minVal, maxVal, outerMin, outerMax) => {
-    const fr = fractional(val, minVal, maxVal);
-    return outerMin + fr * (outerMax - outerMin);
-};
+  // Make it globally accessible for debugging
+  window.visualizer = visualizer;
+});
