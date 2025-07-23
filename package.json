@@ -1,14 +1,26 @@
 {
-  "name": "visualize",
-  "private": true,
-  "version": "0.0.0",
+  "name": "advanced-audio-visualizer",
+  "version": "2.0.0",
+  "description": "A modular audio visualizer built with Three.js and Web Audio API",
+  "main": "src/main.js",
   "type": "module",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview"
   },
+  "keywords": [
+    "audio",
+    "visualizer",
+    "threejs",
+    "web-audio-api",
+    "music",
+    "visualization"
+  ],
   "devDependencies": {
     "vite": "7.0.4"
+  },
+  "dependencies": {
+    "three": "^0.155.0"
   }
 }
