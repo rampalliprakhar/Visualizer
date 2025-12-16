@@ -11,8 +11,9 @@ export class VisualizationManager {
     this.effectsManager = effectsManager;
 
     this.visualizations = new Map();
-    this.currentVisualization = "galaxy";
-
+    // Get default from localStorage or fallback to galaxy
+    this.currentVisualization =
+      localStorage.getItem("defaultVisualization") || "galaxy";
 
     this.modes = {
       GALAXY: "galaxy",
@@ -51,7 +52,7 @@ export class VisualizationManager {
     // Initialize all visualizations
     this.visualizations.forEach((viz) => viz.init());
 
-    // Set initial visualization to Galaxy
+    // Set initial visualization from stored preference
     this.switchVisualization(this.currentVisualization);
   }
 

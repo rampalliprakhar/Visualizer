@@ -13,7 +13,7 @@ export class UIManager {
     this.gui = null;
     this.params = this.initParams();
     // Will be set when needed
-    this.sceneManager = null; 
+    this.sceneManager = null;
   }
 
   init() {
@@ -27,13 +27,17 @@ export class UIManager {
     window.addEventListener("themeChanged", (event) => {
       this.updateThemeUI(event.detail);
     });
+
+    // Load saved preferences
+    this.loadPreferences();
   }
 
   initParams() {
     return {
       // Visualization - changed default to galaxy
-      visualMode: "galaxy",
+      visualMode: this.getStoredVisualizationMode() || "galaxy",
       colorTheme: "neon",
+      defaultVisualization: this.getStoredVisualizationMode() || "galaxy",
 
       // Camera
       cameraDistance: 250,
@@ -54,6 +58,7 @@ export class UIManager {
       // Functions
       reset: () => this.resetParameters(),
       switchTheme: () => this.switchTheme(),
+      savePreferences: () => this.savePreferences(),
     };
   }
 
@@ -68,9 +73,20 @@ export class UIManager {
         "visualMode",
         Object.values(this.visualizationManager.getAllModes())
       )
-      .name("Mode")
+      .name("Current Mode")
       .onChange((value) => {
         this.visualizationManager.switchVisualization(value);
+      });
+
+    vizFolder
+      .add(
+        this.params,
+        "defaultVisualization",
+        Object.values(this.visualizationManager.getAllModes())
+      )
+      .name("Default Mode")
+      .onChange((value) => {
+        this.setDefaultVisualization(value);
       });
 
     vizFolder
@@ -128,11 +144,73 @@ export class UIManager {
 
     // Controls
     this.gui.add(this.params, "reset").name("Reset All");
+    this.gui.add(this.params, "savePreferences").name("Save Settings");
 
     // Open folders by default
     vizFolder.open();
     cameraFolder.open();
     audioFolder.open();
+  }
+
+  getStoredVisualizationMode() {
+    return localStorage.getItem("defaultVisualization");
+  }
+
+  setDefaultVisualization(mode) {
+    localStorage.setItem("defaultVisualization", mode);
+    console.log(`Default visualization set to: ${mode}`);
+  }
+
+  loadPreferences() {
+    const defaultMode = this.getStoredVisualizationMode();
+    if (defaultMode) {
+      this.params.visualMode = defaultMode;
+      this.params.defaultVisualization = defaultMode;
+      this.visualizationManager.switchVisualization(defaultMode);
+      this.gui.updateDisplay();
+    }
+  }
+
+  savePreferences() {
+    localStorage.setItem(
+      "defaultVisualization",
+      this.params.defaultVisualization
+    );
+    localStorage.setItem("colorTheme", this.params.colorTheme);
+    localStorage.setItem("cameraDistance", this.params.cameraDistance);
+    localStorage.setItem("cameraHeight", this.params.cameraHeight);
+    localStorage.setItem("beatSensitivity", this.params.beatSensitivity);
+
+    console.log("Settings saved successfully!");
+
+    // Show a temporary notification
+    this.showNotification("Settings saved!");
+  }
+
+  showNotification(message) {
+    // Create a simple notification
+    const notification = document.createElement("div");
+    notification.style.cssText = `
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background: rgba(0, 255, 255, 0.9);
+      color: black;
+      padding: 10px 20px;
+      border-radius: 5px;
+      z-index: 10000;
+      font-family: Arial, sans-serif;
+      font-size: 14px;
+    `;
+    notification.textContent = message;
+    document.body.appendChild(notification);
+
+    // Remove after 2 seconds
+    setTimeout(() => {
+      if (notification.parentNode) {
+        notification.parentNode.removeChild(notification);
+      }
+    }, 2000);
   }
 
   updateCameraPosition() {

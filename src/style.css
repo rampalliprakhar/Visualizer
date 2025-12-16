@@ -215,12 +215,100 @@ audio {
 }
 
 /* dat.GUI Responsive */
-.dg.main {
+.dg.main,
+.dg.main.a {
   position: fixed !important;
   top: 10px !important;
   right: 10px !important;
   z-index: 1001 !important;
   max-width: calc(100vw - 20px) !important;
+  background: rgba(0, 0, 0, 0.9) !important;
+  border-radius: 5px !important;
+  border: 1px solid rgba(255, 255, 255, 0.2) !important;
+}
+
+.dg .cr.function .property-name,
+.dg .cr.function,
+.dg .cr.boolean,
+.dg .cr.string {
+  background: rgba(255, 255, 255, 0.1) !important;
+  color: white !important;
+}
+
+.dg .cr.number input[type=text] {
+  color: white !important;
+  background: rgba(255, 255, 255, 0.1) !important;
+  border: 1px solid rgba(255, 255, 255, 0.3) !important;
+}
+
+.dg .cr.number .slider {
+  background: rgba(255, 255, 255, 0.3) !important;
+}
+
+.dg .cr.number .slider-fg {
+  background: var(--neonBlue) !important;
+}
+
+.dg .folder .title {
+  background: rgba(255, 255, 255, 0.2) !important;
+  color: white !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
+}
+
+.dg li:not(.folder) {
+  background: rgba(255, 255, 255, 0.05) !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
+}
+
+.dg select {
+  background: rgba(255, 255, 255, 0.1) !important;
+  color: white !important;
+  border: 1px solid rgba(255, 255, 255, 0.2) !important;
+}
+
+.dg select option {
+  background: rgba(0, 0, 0, 0.9) !important;
+  color: white !important;
+  padding: 4px 8px !important;
+}
+
+.dg select option:hover {
+  background: rgba(0, 255, 255, 0.2) !important;
+}
+
+.dg .property-name {
+  color: white !important;
+}
+
+.dg .c {
+  color: white !important;
+}
+
+.dg .button {
+  background: rgba(0, 255, 255, 0.3) !important;
+  border: 1px solid var(--neonBlue) !important;
+  color: white !important;
+  text-align: center !important;
+  padding: 4px 8px !important;
+  border-radius: 3px !important;
+  cursor: pointer !important;
+}
+
+.dg .button:hover {
+  background: rgba(0, 255, 255, 0.5) !important;
+}
+
+.dg .close-button {
+  background: rgba(255, 255, 255, 0.1) !important;
+  color: white !important;
+  border-top: 1px solid rgba(255, 255, 255, 0.1) !important;
+}
+
+.dg.ac {
+  position: fixed !important;
+  top: 10px !important;
+  right: 10px !important;
+  z-index: 1001 !important;
 }
 
 /* Theme Classes */
